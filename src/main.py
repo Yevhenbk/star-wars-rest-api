@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, Favourites, People, Planets, Vehicles
 #from models import Person
 
 app = Flask(__name__)
@@ -43,3 +43,34 @@ def handle_hello():
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
     app.run(host='0.0.0.0', port=PORT, debug=False)
+
+
+#Starts HERE----------------------------------------------------------
+
+@app.route('/people', methods = ['GET'])
+def get_people():
+    id = request.json.get("id", None)
+    name = request.json.get("name", None)
+    height = request.json.get("height", None)
+    mass = request.json.get("mass", None)
+    hair_color = request.json.get("hair_color", None)
+    skin_color = request.json.get("skin_color", None)
+    eye_color = request.json.get("eye_color", None)
+    birth_year = request.json.get("birth_year", None)
+    gender = request.json.get("gender", None)
+    created = request.json.get("created", None)
+    edited = request.json.get("edited", None)
+
+    return jsonify(get_people)
+
+
+@api.route('/people/<int:id>', methods=["GET"])
+def get_people_id(id):
+    people = People.get_by_id(id)
+
+    if people:
+        return jsonify(people.to_dict()), 200
+    
+    return({"error": "Not found"}), 404
+
+
