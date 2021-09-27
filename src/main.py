@@ -64,7 +64,7 @@ def get_people():
     return jsonify(get_people)
 
 
-@api.route('/people/<int:id>', methods=["GET"])
+@app.route('/people/<int:id>', methods=["GET"])
 def get_people_id(id):
     people = People.get_by_id(id)
 
