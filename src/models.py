@@ -21,9 +21,31 @@ class User(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "email": self.email,
+            "email": self.email
             # do not serialize the password, its a security breach
         }
+
+    @classmethod
+    def get_by_email(cls, email):
+        name = cls.query.filter_by(email= email).first()
+        return name if name else "User not found :_("
+
+    @classmethod
+    def get_all(cls):
+        user = cls.query.all()
+        return user
+    
+    def create(self):
+        db.session.add(self)
+        db.session.commit()
+        return self.serialize()
+
+    @classmethod
+    def delete_user(cls, email):
+        target = cls.query.filter_by(email = email).first()
+        db.session.delete(target)
+        db.session.commit()
+
 
 class Favourites(db.Model):
     __tablename__ = 'favourites'
@@ -35,6 +57,14 @@ class Favourites(db.Model):
     have_vehicles = relationship("Vehicles")
     have_planets = relationship("Planets")
 
+    @classmethod
+    def get_all(cls):
+        favourites=cls.query.all()
+        return favourites 
+
+    def create(self):
+        db.session.add(self)
+        db.session.commit()
 
 
 class People(db.Model):
@@ -43,21 +73,21 @@ class People(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     favourites_id = db.Column(db.Integer, db.ForeignKey("favourites.id"))
 
-    name = db.Column(db.String, unique=False, nullable=False)
-    height = db.Column(db.String, unique=False, nullable=False)
-    mass = db.Column(db.String, unique=False, nullable=False)
-    hair_color = db.Column(db.String, unique=False, nullable=False)
-    skin_color = db.Column(db.String, unique=False, nullable=False)
-    eye_color = db.Column(db.String, unique=False, nullable=False)
-    birth_year = db.Column(db.String, unique=False, nullable=False)
-    gender = db.Column(db.String, unique=False, nullable=False)
-    #homeworld = db.Column(db.String, unique=False, nullable=False)
-    #species = db.Column(db.String, unique=False, nullable=False)
-    #vehicles = db.Column(db.String, unique=False, nullable=False)
-    #starships = db.Column(db.String, unique=False, nullable=False)
-    created = db.Column(db.String, unique=False, nullable=False)
-    edited = db.Column(db.String, unique=False, nullable=False)
-    #url = db.Column(db.String, unique=False, nullable=False)
+    name = db.Column(db.String(20), unique=False, nullable=False)
+    height = db.Column(db.String(20), unique=False, nullable=False)
+    mass = db.Column(db.String(20), unique=False, nullable=False)
+    hair_color = db.Column(db.String(20), unique=False, nullable=False)
+    skin_color = db.Column(db.String(20), unique=False, nullable=False)
+    eye_color = db.Column(db.String(20), unique=False, nullable=False)
+    birth_year = db.Column(db.String(20), unique=False, nullable=False)
+    gender = db.Column(db.String(20), unique=False, nullable=False)
+    #homeworld = db.Column(db.String(20), unique=False, nullable=False)
+    #species = db.Column(db.String(20), unique=False, nullable=False)
+    #vehicles = db.Column(db.String(20), unique=False, nullable=False)
+    #starships = db.Column(db.String(20), unique=False, nullable=False)
+    created = db.Column(db.String(20), unique=False, nullable=False)
+    edited = db.Column(db.String(20), unique=False, nullable=False)
+    #url = db.Column(db.String(20), unique=False, nullable=False)
 
 #for /people/id
 
@@ -77,13 +107,18 @@ class People(db.Model):
 
 
     @classmethod
-    def get_people_id(cls, id):
+    def get_by_id(cls, id):
         people = cls.query.get(id)
+        return people
+    
+    @classmethod
+    def get_all(cls):
+        people = cls.query.all()
         return people
 
     def create(self):
-            db.session.add(self)
-            db.session.commit()
+        db.session.add(self)
+        db.session.commit()
 
 
 class Vehicles(db.Model):

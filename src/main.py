@@ -31,13 +31,14 @@ def sitemap():
     return generate_sitemap(app)
 
 @app.route('/user', methods=['GET'])
-def handle_hello():
-
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
-
-    return jsonify(response_body), 200
+def create_user():
+    body = request.get_json()
+    if body.get("email", None):
+        new_user = User(email = body.get("email", "password"), is_active = True)
+        new_user.add()
+        return jsonify(new_user.serialize()), 200
+    return "Integrity error", 400
+    # return jsonify(response_body), 200
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
@@ -47,8 +48,20 @@ if __name__ == '__main__':
 
 #Starts HERE----------------------------------------------------------
 
-@app.route('/people', methods = ['GET'])
-def get_people():
+
+@app.route('/user', methods=['GET'])
+def get_all():
+    user = User.get_all()
+    print(user,"@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+
+    if user:
+        return user.to_dict(), 200
+
+    return({'error': 'Not fount'})
+
+
+@app.route('/people', methods = ['POST'])
+def create_people():
     id = request.json.get("id", None)
     name = request.json.get("name", None)
     height = request.json.get("height", None)
@@ -61,7 +74,40 @@ def get_people():
     created = request.json.get("created", None)
     edited = request.json.get("edited", None)
 
-    return jsonify(get_people)
+    people = People(
+        name=name,
+        height=height,
+        mass=mass,
+        hair_color=hair_color,
+        skin_color=skin_color,
+        eye_color=eye_color,
+        birth_year=birth_year,
+        gender=gender,
+        created=created,
+        edited=edited   
+    )
+
+    print(people.to_dict())
+
+    try:
+        people=people.create()
+        return jsonify(people.to_dict()), 201
+
+    except exc.IntegrityError:
+        return ({'error': 'Unexpected error'}), 400
+
+    # return jsonify(get_people)
+
+
+@app.route('/people', methods=["GET"])
+def get_people_all():
+    people = People.get_all()
+    print(people,"@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+
+    if people:
+        return people.to_dict(), 200
+
+    return({'error': 'Not fount'})
 
 
 @app.route('/people/<int:id>', methods=["GET"])
